@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -25,21 +26,21 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.COMPANY_NAME}}-site-backend:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.COMPANY_NAME }}-site-backend:latest
 
       - name: Build and push bot
         uses: docker/build-push-action@v5
         with:
           context: ./bot
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.COMPANY_NAME}}-site-bot:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.COMPANY_NAME }}-site-bot:latest
 
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.COMPANY_NAME}}-site-frontend:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.COMPANY_NAME }}-site-frontend:latest
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
@@ -47,9 +48,15 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: 22
           script: |
-            pwd
-            cd /var/www/
-            cd ${{secrets.COMPANY_NAME}}
-            docker pull
-            docker compose up -d
+            cd /var/www/${{ secrets.COMPANY_NAME }}
+
+            echo "Pulling latest images..."
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.COMPANY_NAME }}-site-backend:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.COMPANY_NAME }}-site-bot:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.COMPANY_NAME }}-site-frontend:latest
+
+            echo "Restarting containers..."
+            docker compose pull
+            docker compose up -d --remove-orphans
