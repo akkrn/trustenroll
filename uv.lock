@@ -1329,10 +1329,11 @@ wheels = [
 name = "trustenroll"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
+
+[package.dev-dependencies]
+backend = [
     { name = "aerich" },
     { name = "aiofiles" },
-    { name = "aiogram" },
     { name = "aioredis" },
     { name = "aiosqlite" },
     { name = "annotated-types" },
@@ -1377,8 +1378,6 @@ dependencies = [
     { name = "watchfiles" },
     { name = "websockets" },
 ]
-
-[package.dev-dependencies]
 dev = [
     { name = "black" },
     { name = "isort" },
@@ -1387,13 +1386,15 @@ dev = [
 tg-bot = [
     { name = "aiogram" },
     { name = "python-dotenv" },
+    { name = "tortoise-orm" },
 ]
 
 [package.metadata]
-requires-dist = [
+
+[package.metadata.requires-dev]
+backend = [
     { name = "aerich", specifier = "==0.8.2" },
     { name = "aiofiles", specifier = "==24.1.0" },
-    { name = "aiogram", specifier = ">=3.19.0" },
     { name = "aioredis", specifier = "==2.0.1" },
     { name = "aiosqlite", specifier = "==0.21.0" },
     { name = "annotated-types", specifier = "==0.7.0" },
@@ -1438,8 +1439,6 @@ requires-dist = [
     { name = "watchfiles", specifier = "==1.0.4" },
     { name = "websockets", specifier = "==15.0.1" },
 ]
-
-[package.metadata.requires-dev]
 dev = [
     { name = "black", specifier = ">=25.1.0" },
     { name = "isort", specifier = ">=6.0.1" },
@@ -1448,6 +1447,7 @@ dev = [
 tg-bot = [
     { name = "aiogram", specifier = ">=3.19.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "tortoise-orm", specifier = "==0.24.2" },
 ]
 
 [[package]]

@@ -1,0 +1,12 @@
+[project]
+name = "trustenroll"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.aerich]
+tortoise_orm = "models.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
