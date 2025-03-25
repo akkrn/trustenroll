@@ -17,7 +17,7 @@ from schemas import (
 api_router = APIRouter(route_class=CacheRoute)
 
 
-@api_router.get("/all_cards", response_model=List[BankCardsSchema])
+@api_router.get("/api/all_cards", response_model=List[BankCardsSchema])
 async def get_all_cards_grouped():
     cards = await Card.all()
     grouped = defaultdict(list)
@@ -35,7 +35,7 @@ async def get_all_cards_grouped():
     return JSONResponse(content=response)
 
 
-@api_router.get("/main_categories", response_model=List[MainCategorySchema])
+@api_router.get("/api/main_categories", response_model=List[MainCategorySchema])
 async def get_main_categories():
     return await MainCategory.all()
 
@@ -49,7 +49,7 @@ async def get_main_categories():
 
 
 @api_router.get(
-    "/cards/by_subcategory/{subcategory_id}/cards",
+    "/api/cards/by_subcategory/{subcategory_id}/cards",
     response_model=List[CardSchema],
 )
 async def get_cards_by_subcategory(subcategory_id: int):
@@ -60,16 +60,14 @@ async def get_cards_by_subcategory(subcategory_id: int):
 
 
 @api_router.get(
-    "/main_categories/{main_category_id}/details",
+    "/api/main_categories/{main_category_id}/details",
     response_model=MainCategoryDetailSchema,
 )
 async def get_main_category_details(main_category_id: int):
     main_category = await MainCategory.get_or_none(id=main_category_id)
     if not main_category:
         raise HTTPException(status_code=404, detail="Main category not found")
-    subcategories = await SubCategory.filter(
-        main_category=main_category
-    ).select_related("main_category")
+    subcategories = await SubCategory.filter(main_category=main_category).select_related("main_category")
     subcategory_ids = [sub.id for sub in subcategories]
     cards = await Card.filter(subcategory_id__in=subcategory_ids)
     return {

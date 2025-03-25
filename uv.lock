@@ -1385,6 +1385,7 @@ dev = [
 ]
 tg-bot = [
     { name = "aiogram" },
+    { name = "asyncpg" },
     { name = "python-dotenv" },
     { name = "tortoise-orm" },
 ]
@@ -1446,6 +1447,7 @@ dev = [
 ]
 tg-bot = [
     { name = "aiogram", specifier = ">=3.19.0" },
+    { name = "asyncpg", specifier = "==0.30.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "tortoise-orm", specifier = "==0.24.2" },
 ]
