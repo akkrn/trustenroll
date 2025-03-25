@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trustenroll
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trustenroll_net
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - trustenroll_net
+
+  backend:
+    build: ./backend
+    container_name: backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - trustenroll_net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    command: yarn serve --host 0.0.0.0 --port 3000
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    networks:
+      - trustenroll_net
+
+  admin_front:
+    build: ./admin-front
+    container_name: admin_front
+    command: yarn serve --host 0.0.0.0 --port 8080
+    volumes:
+      - ./admin-front:/app
+    ports:
+      - "8080:8080"
+    networks:
+      - trustenroll_net
+
+networks:
+  trustenroll_net:
+
+
+volumes:
+  postgres_data:

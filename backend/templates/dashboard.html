@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+{% block page_body %}
+<div class="row">
+    <div class="col-8">
+        <div class="card">
+            <div class="card-body">
+                <ul>
+                    {% for resource in resources %}
+                    <li><a href="{{ resource.get_page_path() }}">{{ resource.label }}</a></li>
+                    {% endfor %}
+                </ul>
+                <div class="card-title">
+                    Stargazers over time
+                </div>
+                <img src="https://starchart.cc/fastapi-admin/fastapi-admin.svg" alt="">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
