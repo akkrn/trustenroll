@@ -10,6 +10,7 @@ from fastapi_admin.app import app as admin_app
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from tortoise.contrib.fastapi import register_tortoise
+from fastapi.middleware.cors import CORSMiddleware
 
 from admin import configure_admin
 from api_routes import api_router
@@ -35,6 +36,13 @@ def create_app():
     app = FastAPI()
 
     app.middleware("http")(log_ip_middleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["https://2.56.178.154:3000", "http://localhost:3000"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     @app.on_event("startup")
     async def startup_event():
@@ -46,16 +54,16 @@ def create_app():
         FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
         await configure_admin(redis, TEMPLATE_FOLDER)
 
-    app.mount(
-        "/static/",
-        StaticFiles(directory=os.path.join(BASE_DIR, "../frontend/build/static")),
-        name="static",
-    )
-    app.mount(
-        "/images",
-        StaticFiles(directory=os.path.join(BASE_DIR, "../frontend/build/images")),
-        name="images",
-    )
+    # app.mount(
+    #     "/static/",
+    #     StaticFiles(directory=os.path.join(BASE_DIR, "../frontend/build/static")),
+    #     name="static",
+    # )
+    # app.mount(
+    #     "/images",
+    #     StaticFiles(directory=os.path.join(BASE_DIR, "../frontend/build/images")),
+    #     name="images",
+    # )
 
     app.include_router(api_router)
     app.include_router(router)
