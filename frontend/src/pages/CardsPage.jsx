@@ -8,7 +8,7 @@ import HeaderLinks from '../components/HeadLinks';
 import CategoryImageSelector from '../components/CategoryImageSelector';
 import noCardsImg from '../assets/no-cards.png';
 
-const API = "http://localhost/api";
+const API = "/api";
 
 export default function CardsPage() {
     const [mainCategories, setMainCategories] = useState([]);

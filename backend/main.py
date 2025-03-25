@@ -36,13 +36,13 @@ def create_app():
     app = FastAPI()
 
     app.middleware("http")(log_ip_middleware)
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["https://2.56.178.154", "http://localhost"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # app.add_middleware(
+    #     CORSMiddleware,
+    #     allow_origins=["https://2.56.178.154", "http://localhost"],
+    #     allow_credentials=True,
+    #     allow_methods=["*"],
+    #     allow_headers=["*"],
+    # )
 
     @app.on_event("startup")
     async def startup_event():
