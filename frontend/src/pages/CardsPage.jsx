@@ -8,7 +8,7 @@ import HeaderLinks from '../components/HeadLinks';
 import CategoryImageSelector from '../components/CategoryImageSelector';
 import noCardsImg from '../assets/no-cards.png';
 
-const API = process.env.REACT_APP_API;
+const API = "http://localhost/api";
 
 export default function CardsPage() {
     const [mainCategories, setMainCategories] = useState([]);
