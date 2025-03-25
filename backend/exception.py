@@ -13,25 +13,21 @@ from starlette.status import (
 
 
 async def redirect_to_login(request: Request, exc):
-    return RedirectResponse(url="/admin/login", status_code=302)
+    return RedirectResponse(url="/api/admin/login", status_code=302)
 
 
 async def redirect_to_dashboard(request: Request, exc):
-    return RedirectResponse(url="/admin/card/list", status_code=302)
+    return RedirectResponse(url="/api/admin/card/list", status_code=302)
 
 
 async def redirect_to_main(request: Request, exc):
-    return RedirectResponse(url="/", status_code=302)
+    return RedirectResponse(url="/api/", status_code=302)
 
 
 def register_exception_handlers(app, admin_app):
-    admin_app.add_exception_handler(
-        HTTP_500_INTERNAL_SERVER_ERROR, server_error_exception
-    )
+    admin_app.add_exception_handler(HTTP_500_INTERNAL_SERVER_ERROR, server_error_exception)
     admin_app.add_exception_handler(HTTP_404_NOT_FOUND, redirect_to_dashboard)
-    admin_app.add_exception_handler(
-        HTTP_403_FORBIDDEN, forbidden_error_exception
-    )
+    admin_app.add_exception_handler(HTTP_403_FORBIDDEN, forbidden_error_exception)
     admin_app.add_exception_handler(HTTP_401_UNAUTHORIZED, redirect_to_login)
 
     app.add_exception_handler(HTTP_404_NOT_FOUND, redirect_to_main)

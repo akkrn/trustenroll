@@ -12,7 +12,10 @@ from logging_config import setup_logging
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-DB_URL = os.getenv("DATABASE_URL")
+DB_URL = (
+    os.getenv("DATABASE_URL")
+    or f"postgres://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
+)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 bot = Bot(BOT_TOKEN)
