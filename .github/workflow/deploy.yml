@@ -47,4 +47,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: pwd
+          script: |
+            cd trustenroll
+            docker pull
+            docker compose up -d
