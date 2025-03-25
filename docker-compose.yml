@@ -1,71 +1,63 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  postgres:
-    image: postgres:14
-    container_name: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: trustenroll
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - trustenroll_net
-
-  redis:
-    image: redis:7
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - trustenroll_net
 
   backend:
     build: ./backend
     container_name: backend
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - ./backend:/app
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
+    restart: unless-stopped
+    env_file: .env
     depends_on:
-      - postgres
+      - db
       - redis
     networks:
-      - trustenroll_net
+      - app-network
 
-  frontend:
+  bot:
+    build: ./bot
+    container_name: bot
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  nginx:
     build: ./frontend
-    container_name: frontend
-    command: yarn serve --host 0.0.0.0 --port 3000
-    volumes:
-      - ./frontend:/app
+    container_name: nginx
+    restart: unless-stopped
     ports:
-      - "3000:3000"
-    networks:
-      - trustenroll_net
-
-  admin_front:
-    build: ./admin-front
-    container_name: admin_front
-    command: yarn serve --host 0.0.0.0 --port 8080
+      - "80:80"
     volumes:
-      - ./admin-front:/app
-    ports:
-      - "8080:8080"
+      - ./frontend/public/images:/var/www/images
+    depends_on:
+      - backend
     networks:
-      - trustenroll_net
+      - app-network
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - app-network
 
-networks:
-  trustenroll_net:
-
+  db:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+
+
+networks:
+  app-network:
