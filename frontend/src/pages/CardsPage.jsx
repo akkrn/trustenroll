@@ -6,6 +6,7 @@ import SubCategories from '../components/SubCategories';
 import CardList from '../components/CardList';
 import HeaderLinks from '../components/HeadLinks';
 import CategoryImageSelector from '../components/CategoryImageSelector';
+import noCardsImg from '../assets/no-cards.png';
 
 const API = process.env.REACT_APP_API;
 
@@ -157,8 +158,13 @@ export default function CardsPage() {
                 activeSubCategory={activeSubCategory}
                 onSelectSubCategory={(id) => setActiveSubCategory(id === activeSubCategory ? null : id)}
             />
-            <div ref={cardsSectionRef} className="w-full flex justify-center min-h-[70rem]">
-                <CardList groupedCards={groupedCards} isLoading={isLoading} />
+            <div ref={cardsSectionRef} className="w-full flex justify-center min-h-[20rem] relative">
+                <CardList groupedCards={groupedCards} />
+                {groupedCards.length === 0 && (
+                    <div className="absolute">
+                        <img src={noCardsImg} alt="No cards" className="h-auto" />
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -4,11 +4,11 @@ import header from '../assets/header.jpg';
 export default function Header() {
     return (
         <div className="relative h-full overflow-hidden">
-            <img
+            <a href="/"><img
                 src={header}
                 alt="Header Background"
                 className="w-full object-bottom h-full object-cover"
-            />
+            /></a>
         </div>
     );
 }
