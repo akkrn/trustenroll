@@ -38,7 +38,7 @@ def create_app():
     app.middleware("http")(log_ip_middleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["https://2.56.178.154:3000", "http://localhost:3000"],
+        allow_origins=["https://2.56.178.154", "http://localhost"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
