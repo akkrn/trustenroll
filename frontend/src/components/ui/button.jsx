@@ -33,20 +33,32 @@ export const RandomAnimatedButton = ({ children, type, active, color, ...props }
    - Простой вариант кнопки для карточек.
    - Использует глобальный цвет (или переданный через пропс) для рамки, текст остаётся чёрным.
 */
-export const CardButton = ({ children, type, color, ...props }) => {
+export const CardButton = ({ children, type, color, onClick, ...props }) => {
     const btnColor = type === 'first' ? true : false;
+    const [copied, setCopied] = useState(false);
+
+    const handleClick = async (e) => {
+        if (type === 'first') {
+            await onClick?.(e);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 800);
+        } else {
+            onClick?.(e);
+        }
+    };
 
     return (
         <button
-            className="px-2 py-1 md:px-2 md:py-1 rounded-xl font-semibold transition-colors duration-300"
+            onClick={handleClick}
+            className={`px-2 py-1 md:px-2 md:py-1 rounded-xl font-semibold transition duration-300 transform ${copied ? 'scale-102 bg-[#ae3be0] text-white' : ''}`}
             style={{
-                backgroundColor: btnColor ? 'white' : `${MAIN_CATEGORY_COLOR}`,
+                backgroundColor: btnColor && !copied ? 'white' : !copied ? `${MAIN_CATEGORY_COLOR}` : undefined,
                 border: `1px solid ${MAIN_CATEGORY_COLOR}`,
-                color: btnColor ? `${MAIN_CATEGORY_COLOR}` : "white",
+                color: btnColor && !copied ? `${MAIN_CATEGORY_COLOR}` : "white",
             }}
             {...props}
         >
-            {children}
+            {copied ? 'Copied!' : children}
         </button>
     );
 };
