@@ -5,16 +5,11 @@ from aiogram import Router, types
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from dotenv import load_dotenv
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-
-from service import (
-    get_main_category_buttons,
-    get_subcategory_buttons,
-    is_authorized,
-    parse_and_save_cards,
-    register_user,
-)
+from service import get_main_category_buttons, get_subcategory_buttons, is_authorized, parse_and_save_cards, register_user, show_main_menu
 from states import UploadStates
+from models import Card
 
 router = Router()
 load_dotenv()
@@ -27,9 +22,47 @@ async def cmd_start(message: types.Message, state: FSMContext):
     if not await is_authorized(message.from_user.id):
         await message.answer("Access denied.")
         return
-    kb = await get_main_category_buttons()
-    await message.answer("Select a main category:", reply_markup=kb)
-    await state.set_state(UploadStates.waiting_for_main_category)
+    await show_main_menu(message, state)
+
+
+@router.callback_query(lambda c: c.data == "action_delete")
+async def start_deletion(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UploadStates.waiting_for_delete_input)
+    await callback.message.edit_text("Send card lines to delete")
+
+
+@router.message(UploadStates.waiting_for_delete_input)
+async def delete_cards_handler(message: types.Message, state: FSMContext):
+    if not await is_authorized(message.from_user.id):
+        await message.answer("Access denied.", show_alert=True)
+        return
+    lines = message.text.strip().split("\n")
+    not_found = []
+    deleted_count = 0
+
+    for line in lines:
+        deleted = await Card.filter(card_name=line).delete()
+        if deleted == 0:
+            not_found.append(line)
+        else:
+            deleted_count += deleted
+
+    if not_found:
+        text = "⚠️ Not found:\n" + "\n".join(not_found)
+    else:
+        text = f"✅ {deleted_count} card(s) deleted."
+    text += "\n\n Delete more?"
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Back to menu", callback_data="back_to_menu")]])
+    await message.answer(text, reply_markup=kb)
+
+
+@router.callback_query(lambda c: c.data == "back_to_menu")
+async def handle_back(callback: types.CallbackQuery, state: FSMContext):
+    await callback.answer()
+    if not await is_authorized(callback.from_user.id):
+        await callback.answer("Access denied.", show_alert=True)
+        return
+    await show_main_menu(callback.message, state)
 
 
 @router.message(Command(secret_command))
@@ -43,6 +76,16 @@ async def access(message: types.Message):
         await message.answer("Access granted. You can now use the bot.")
     else:
         await message.answer("You already have access.")
+
+
+@router.callback_query(lambda c: c.data.startswith("action_add"))
+async def add_card_handler(callback_query: types.CallbackQuery, state: FSMContext):
+    if not await is_authorized(callback_query.from_user.id):
+        await callback_query.answer("Access denied.", show_alert=True)
+        return
+    kb = await get_main_category_buttons()
+    await callback_query.message.edit_text("Select a main category:", reply_markup=kb)
+    await state.set_state(UploadStates.waiting_for_main_category)
 
 
 @router.callback_query(lambda c: c.data.startswith("main_"))
@@ -101,5 +144,6 @@ async def process_cards_text(message: types.Message, state: FSMContext):
 
     await message.answer("Cards saved. Choose a main category again.")
     kb = await get_main_category_buttons()
+
     await message.answer("Select a main category:", reply_markup=kb)
     await state.set_state(UploadStates.waiting_for_main_category)
