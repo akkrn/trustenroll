@@ -158,7 +158,7 @@ export default function CardsPage() {
                 activeSubCategory={activeSubCategory}
                 onSelectSubCategory={(id) => setActiveSubCategory(id === activeSubCategory ? null : id)}
             />
-            <div ref={cardsSectionRef} className="w-full flex justify-center min-h-[20rem] relative">
+            <div ref={cardsSectionRef} className="w-full flex justify-center min-h-[5rem] sm:min-h-[20rem] relative">
                 <CardList groupedCards={groupedCards} />
                 {groupedCards.length === 0 && (
                     <div className="absolute">
