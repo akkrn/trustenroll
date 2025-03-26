@@ -29,8 +29,12 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./frontend/public/images:/var/www/images
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/ssl-data:/var/www/certbot
+      - ./images:/var/www/images
     depends_on:
       - backend
     networks:
