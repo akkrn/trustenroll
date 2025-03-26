@@ -13,15 +13,15 @@ from starlette.status import (
 
 
 async def redirect_to_login(request: Request, exc):
-    return RedirectResponse(url="/api/admin/login", status_code=302)
+    return RedirectResponse(url="/admin/login", status_code=302)
 
 
 async def redirect_to_dashboard(request: Request, exc):
-    return RedirectResponse(url="/api/admin/card/list", status_code=302)
+    return RedirectResponse(url="/admin/card/list", status_code=302)
 
 
 async def redirect_to_main(request: Request, exc):
-    return RedirectResponse(url="/api/", status_code=302)
+    return RedirectResponse(url="/", status_code=302)
 
 
 def register_exception_handlers(app, admin_app):

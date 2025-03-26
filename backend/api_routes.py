@@ -40,14 +40,6 @@ async def get_main_categories():
     return await MainCategory.all()
 
 
-# @api_router.get("/subcategories/{main_category_id}", response_model=List[SubCategorySchema])
-# async def get_subcategories(main_category_id: int):
-#     main_category = await MainCategory.get_or_none(id=main_category_id)
-#     if not main_category:
-#         raise HTTPException(status_code=404, detail="Main category not found")
-#     return await SubCategory.filter(main_category=main_category)
-
-
 @api_router.get(
     "/cards/by_subcategory/{subcategory_id}/cards",
     response_model=List[CardSchema],
