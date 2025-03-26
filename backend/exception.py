@@ -21,7 +21,8 @@ async def redirect_to_dashboard(request: Request, exc):
 
 
 async def redirect_to_main(request: Request, exc):
-    return RedirectResponse(url="/", status_code=302)
+    pass
+    # return RedirectResponse(url="/", status_code=302)
 
 
 def register_exception_handlers(app, admin_app):
