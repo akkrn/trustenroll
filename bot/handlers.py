@@ -41,7 +41,9 @@ async def delete_cards_handler(message: types.Message, state: FSMContext):
     deleted_count = 0
 
     for line in lines:
-        deleted = await Card.filter(card_name=line).delete()
+        number = line.strip().split("|")[0].strip().lstrip("#")
+        if len(number) == 4:
+            deleted = await Card.filter(card_name__startswith=f"#{number}").delete()
         if deleted == 0:
             not_found.append(line)
         else:
