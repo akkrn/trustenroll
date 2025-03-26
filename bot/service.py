@@ -1,10 +1,18 @@
+import logging
+
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.fsm.context import FSMContext
+from aiocache import cached
 
 from models import BotUser, Card, MainCategory, SubCategory
+from cache import GLOBAL_TTL
+
+logger = logging.getLogger(__name__)
 
 
+@cached(ttl=GLOBAL_TTL)
 async def is_authorized(user_id):
+    logger.info(f"Calling DB for user_id={user_id}")
     return await BotUser.exists(telegram_id=user_id)
 
 

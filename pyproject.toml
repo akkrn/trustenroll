@@ -22,6 +22,8 @@ tg-bot = [
     "python-dotenv>=1.0.1",
     "tortoise-orm==0.24.2",
     "asyncpg==0.30.0",
+    "aiocache>=0.12.3",
+    "redis>=5.2.1",
 ]
 backend = [
     "aerich==0.8.2",
