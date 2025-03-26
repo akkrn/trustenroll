@@ -6,7 +6,7 @@ from fastapi.routing import APIRoute
 from fastapi_cache import FastAPICache
 
 logger = logging.getLogger(__name__)
-GLOBAL_CACHE_EXPIRE = 60
+GLOBAL_CACHE_EXPIRE = 15
 
 
 class CacheRoute(APIRoute):
