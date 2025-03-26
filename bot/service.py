@@ -54,4 +54,4 @@ async def show_main_menu(target, state: FSMContext):
             ]
         ]
     )
-    await target.answer("Choose an action:", reply_markup=kb)
+    await target.edit_text("Choose an action:", reply_markup=kb)
