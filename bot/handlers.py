@@ -22,7 +22,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
     if not await is_authorized(message.from_user.id):
         await message.answer("Access denied.")
         return
-    await show_main_menu(message, state)
+    await show_main_menu(message, state, False)
 
 
 @router.callback_query(lambda c: c.data == "action_delete")
@@ -57,12 +57,11 @@ async def delete_cards_handler(message: types.Message, state: FSMContext):
 
 
 @router.callback_query(lambda c: c.data == "back_to_menu")
-async def handle_back(callback: types.CallbackQuery, state: FSMContext):
-    await callback.answer()
-    if not await is_authorized(callback.from_user.id):
-        await callback.answer("Access denied.", show_alert=True)
+async def handle_back(callback_query: types.CallbackQuery, state: FSMContext):
+    if not await is_authorized(callback_query.from_user.id):
+        await callback_query.answer("Access denied.", show_alert=True)
         return
-    await show_main_menu(callback.message, state)
+    await show_main_menu(callback_query.message, state)
 
 
 @router.message(Command(secret_command))

@@ -44,7 +44,7 @@ async def parse_and_save_cards(text, subcategory_id):
             )
 
 
-async def show_main_menu(target, state: FSMContext):
+async def show_main_menu(target, state: FSMContext, is_delete=True):
     await state.clear()
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -54,4 +54,6 @@ async def show_main_menu(target, state: FSMContext):
             ]
         ]
     )
-    await target.edit_text("Choose an action:", reply_markup=kb)
+    await target.answer("Choose an action:", reply_markup=kb)
+    if is_delete:
+        await target.delete()
