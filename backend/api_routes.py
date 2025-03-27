@@ -81,7 +81,7 @@ async def get_main_category_details(main_category_id: int):
     return JSONResponse(content=response)
 
 
-@api_router.post("/track_visit")
+@api_router.post("/ping")
 async def track_visit(request: Request):
     ip = request.client.host
     path = "/"

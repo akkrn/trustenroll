@@ -6,7 +6,7 @@ import CardsPage from './pages/CardsPage';
 
 function App() {
   useEffect(() => {
-    axios.post('/api/track_visit', {
+    axios.post('/api/ping', {
         timestamp: new Date().toISOString(),
     });
   }, []);
