@@ -20,21 +20,21 @@ export default function CardsPage() {
 
     const cardsSectionRef = useRef(null);
 
-    const groupCardsByBank = (cardsArray) => {
-        const grouped = {};
-        cardsArray.forEach(card => {
-            const bankName = card.bank_name;
-            if (!grouped[bankName]) {
-                grouped[bankName] = [];
-            }
-            grouped[bankName].push(card);
-        });
+    // const groupCardsByBank = (cardsArray) => {
+    //     const grouped = {};
+    //     cardsArray.forEach(card => {
+    //         const bankName = card.bank_name;
+    //         if (!grouped[bankName]) {
+    //             grouped[bankName] = [];
+    //         }
+    //         grouped[bankName].push(card);
+    //     });
 
-        return Object.entries(grouped).map(([bank_name, cards]) => ({
-            bank_name,
-            cards
-        }));
-    };
+    //     return Object.entries(grouped).map(([bank_name, cards]) => ({
+    //         bank_name,
+    //         cards
+    //     }));
+    // };
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -76,7 +76,7 @@ export default function CardsPage() {
                 const { subcategories, cards } = res.data;
 
                 setSubCategories(subcategories);
-                setGroupedCards(groupCardsByBank(cards));
+                setGroupedCards(cards);
                 scrollToCards();
             } catch (error) {
                 console.error('Ошибка при загрузке деталей категории:', error);
@@ -98,7 +98,7 @@ export default function CardsPage() {
                         const res = await axios.get(`${API}/main_categories/${activeMainCategory}/details`);
                         const { cards } = res.data;
 
-                        setGroupedCards(groupCardsByBank(cards));
+                        setGroupedCards(cards);
                         scrollToCards();
                     } catch (error) {
                         console.error('Ошибка при загрузке карт категории:', error);
@@ -113,10 +113,11 @@ export default function CardsPage() {
             setIsLoading(true);
             try {
                 const res = await axios.get(`${API}/cards/by_subcategory/${activeSubCategory}/cards`);
-                setGroupedCards(groupCardsByBank(res.data));
+                setGroupedCards(res.data);
                 scrollToCards();
             } catch (error) {
                 console.error('Ошибка при загрузке карт подкатегории:', error);
+                setGroupedCards([]);
             } finally {
                 setIsLoading(false);
             }
@@ -134,12 +135,6 @@ export default function CardsPage() {
         <div className="flex flex-col items-center w-full min-h-screen">
             <HeaderLinks />
             <Header />
-            {/* <MainCategories
-                categories={mainCategories}
-                activeCategory={activeMainCategory}
-                onSelectCategory={(id) => setActiveMainCategory(id === activeMainCategory ? null : id)}
-            /> */}
-
             <CategoryImageSelector
                 value={activeImageKey}
                 onSelect={(key) => {

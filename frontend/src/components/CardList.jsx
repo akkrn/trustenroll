@@ -17,7 +17,7 @@ export default function CardList({ groupedCards, isLoading }) {
 
     return (
         <div className="w-full max-w-5xl mt-12 px-4 flex flex-col items-center">
-            {groupedCards.map(({ bank_name, cards }) => (
+            {groupedCards?.length > 0 && groupedCards.map(({ bank_name, cards }) => (
                 <div key={bank_name} className="mb-12 w-full">
                     <h2 className="text-lg sm:text-xl font-bold mb-2 text-center uppercase tracking-wide text-black-700">{bank_name}</h2>
                     <div className="flex flex-col gap-2">

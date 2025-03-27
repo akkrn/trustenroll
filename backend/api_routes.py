@@ -13,25 +13,30 @@ from schemas import (
     MainCategoryDetailSchema,
     MainCategorySchema,
 )
+from service import extract_available
 
 api_router = APIRouter(route_class=CacheRoute)
 
 
-@api_router.get("/all_cards", response_model=List[BankCardsSchema])
-async def get_all_cards_grouped():
-    cards = await Card.all()
+def sorting_and_ordering_cards(cards):
     grouped = defaultdict(list)
-
     for card in cards:
         grouped[card.bank_name].append(card)
     response = [
         {
             "bank_name": bank,
-            "cards": [CardSchema.from_orm(c) for c in card_list],
+            "cards": sorted([CardSchema.from_orm(c) for c in card_list], key=lambda c: extract_available(c.card_name), reverse=True),
         }
         for bank, card_list in grouped.items()
     ]
     response = jsonable_encoder(response)
+    return response
+
+
+@api_router.get("/all_cards", response_model=List[BankCardsSchema])
+async def get_all_cards_grouped():
+    cards = await Card.all()
+    response = sorting_and_ordering_cards(cards)
     return JSONResponse(content=response)
 
 
@@ -47,8 +52,10 @@ async def get_main_categories():
 async def get_cards_by_subcategory(subcategory_id: int):
     subcategory = await SubCategory.get_or_none(id=subcategory_id)
     if not subcategory:
-        return await Card.all()
-    return await Card.filter(subcategory=subcategory)
+        return await get_all_cards_grouped()
+    cards = await Card.filter(subcategory=subcategory)
+    response = sorting_and_ordering_cards(cards)
+    return JSONResponse(content=response)
 
 
 @api_router.get(
@@ -62,9 +69,13 @@ async def get_main_category_details(main_category_id: int):
     subcategories = await SubCategory.filter(main_category=main_category).select_related("main_category")
     subcategory_ids = [sub.id for sub in subcategories]
     cards = await Card.filter(subcategory_id__in=subcategory_ids)
-    return {
+
+    sorted_cards = sorting_and_ordering_cards(cards)
+    data = {
         "id": main_category.id,
         "name": main_category.name,
         "subcategories": subcategories,
-        "cards": cards,
+        "cards": sorted_cards,
     }
+    response = jsonable_encoder(data)
+    return JSONResponse(content=response)
