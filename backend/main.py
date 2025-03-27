@@ -5,19 +5,13 @@ import aioredis
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi_admin.app import app as admin_app
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from tortoise.contrib.fastapi import register_tortoise
-from fastapi.middleware.cors import CORSMiddleware
-
-from admin import configure_admin
-from api_routes import api_router
-from exception import register_exception_handlers
 from logging_config import setup_logging
 from middleware import log_ip_middleware
-from routes import router
+from tortoise.contrib.fastapi import register_tortoise
+
+from api_routes import api_router
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_URL = (
@@ -25,7 +19,6 @@ DB_URL = (
     or f"postgres://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
 )
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-TEMPLATE_FOLDER = (os.path.join(BASE_DIR, "templates"),)
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -45,13 +38,8 @@ def create_app():
             encoding="utf8",
         )
         FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-        await configure_admin(redis, TEMPLATE_FOLDER)
 
     app.include_router(api_router)
-    app.include_router(router)
-    app.mount("/admin", admin_app)
-
-    register_exception_handlers(app, admin_app)
 
     register_tortoise(
         app,
@@ -66,4 +54,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", reload=False)

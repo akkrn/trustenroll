@@ -1,10 +1,10 @@
 from collections import defaultdict
 from typing import List
 
+
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-
 from cache import CacheRoute
 from models import Card, MainCategory, SubCategory
 from schemas import (

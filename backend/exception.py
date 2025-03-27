@@ -7,7 +7,6 @@ from fastapi_admin.exceptions import (
 from starlette.status import (
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
@@ -17,18 +16,11 @@ async def redirect_to_login(request: Request, exc):
 
 
 async def redirect_to_dashboard(request: Request, exc):
-    return RedirectResponse(url="/admin/card/list", status_code=302)
+    return RedirectResponse(url="/admin/card/list")
 
 
-async def redirect_to_main(request: Request, exc):
-    pass
-    # return RedirectResponse(url="/", status_code=302)
-
-
-def register_exception_handlers(app, admin_app):
+async def register_exception_handlers(admin_app):
     admin_app.add_exception_handler(HTTP_500_INTERNAL_SERVER_ERROR, server_error_exception)
-    admin_app.add_exception_handler(HTTP_404_NOT_FOUND, redirect_to_dashboard)
+    # admin_app.add_exception_handler(HTTP_404_NOT_FOUND, redirect_to_dashboard)
     admin_app.add_exception_handler(HTTP_403_FORBIDDEN, forbidden_error_exception)
     admin_app.add_exception_handler(HTTP_401_UNAUTHORIZED, redirect_to_login)
-
-    app.add_exception_handler(HTTP_404_NOT_FOUND, redirect_to_main)

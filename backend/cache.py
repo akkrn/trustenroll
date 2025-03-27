@@ -21,7 +21,9 @@ class CacheRoute(APIRoute):
                 return Response(content=cached, media_type="application/json")
             response: Response = await original_handler(request)
             if response.status_code == 200:
-                await cache.set(cache_key, response.body, expire=GLOBAL_CACHE_EXPIRE)
+                await cache.set(
+                    cache_key, response.body, expire=GLOBAL_CACHE_EXPIRE
+                )
             return response
 
         return custom_route_handler

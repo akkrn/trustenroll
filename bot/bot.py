@@ -1,13 +1,11 @@
 import asyncio
-import os
 import logging
+import os
 
 from aiogram import Bot, Dispatcher
-from dotenv import load_dotenv
+from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
 from tortoise import Tortoise
-from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.fsm.storage.redis import DefaultKeyBuilder
-
+from dotenv import load_dotenv
 from handlers import router
 from logging_config import setup_logging
 from cache import set_cache_config

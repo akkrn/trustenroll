@@ -1,26 +1,23 @@
-from fastapi_admin.app import app as admin_app
 from fastapi_admin.providers.login import UsernamePasswordProvider
 from fastapi_admin.resources import Model
 from fastapi_admin.widgets import filters
-
 from models import Admin, BotUser, Card, MainCategory, SubCategory
 
 
-async def configure_admin(redis, template_path):
+async def configure_admin(admin_app, redis, template_path):
     await admin_app.configure(
         redis=redis,
-        template_folders=template_path,
+        template_folders=[template_path],
         providers=[
             UsernamePasswordProvider(
                 admin_model=Admin,
             ),
         ],
-        # logo_url="https://www.flaticon.com/free-icon/user_10337203?term=admin&page=1&position=3&origin=tag&related_id=10337203",
     )
-    await register_admin()
+    await register_admin(admin_app)
 
 
-async def register_admin():
+async def register_admin(admin_app):
     @admin_app.register
     class MainCategoryAdmin(Model):
         label = "Main Categories"
