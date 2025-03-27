@@ -1,12 +1,14 @@
 import asyncio
 import os
+from datetime import datetime, timedelta, date
 
 from aiogram import Router, types
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
-from models import Card
+from models import Card, VisitLog
+
 from service import (
     get_main_category_buttons,
     get_subcategory_buttons,
@@ -37,6 +39,19 @@ async def start_deletion(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text("Send card lines to delete")
 
 
+@router.callback_query(lambda c: c.data == "view_visits")
+async def handle_view_visits(callback: types.CallbackQuery, state: FSMContext):
+
+    today = date.today()
+    start = datetime.combine(today, datetime.min.time())
+    end = start + timedelta(days=1)
+
+    visits_today = await VisitLog.filter(timestamp__gte=start, timestamp__lt=end).count()
+
+    await callback.message.edit_text(f"📅 Today - *{visits_today}* visits.", parse_mode="Markdown")
+    await show_main_menu(callback.message, state, False)
+
+
 @router.message(UploadStates.waiting_for_delete_input)
 async def delete_cards_handler(message: types.Message, state: FSMContext):
     if not await is_authorized(message.from_user.id):
@@ -49,9 +64,7 @@ async def delete_cards_handler(message: types.Message, state: FSMContext):
     for line in lines:
         number = line.strip().split("|")[0].strip().lstrip("#")
         if len(number) == 4:
-            deleted = await Card.filter(
-                card_name__startswith=f"#{number}"
-            ).delete()
+            deleted = await Card.filter(card_name__startswith=f"#{number}").delete()
         if deleted == 0:
             not_found.append(line)
         else:
@@ -62,15 +75,7 @@ async def delete_cards_handler(message: types.Message, state: FSMContext):
     else:
         text = f"✅ {deleted_count} card(s) deleted."
     text += "\n\n Delete more?"
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="⬅️ Back to menu", callback_data="back_to_menu"
-                )
-            ]
-        ]
-    )
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⬅️ Back to menu", callback_data="back_to_menu")]])
     await message.answer(text, reply_markup=kb)
 
 
@@ -96,23 +101,17 @@ async def access(message: types.Message):
 
 
 @router.callback_query(lambda c: c.data.startswith("action_add"))
-async def add_card_handler(
-    callback_query: types.CallbackQuery, state: FSMContext
-):
+async def add_card_handler(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
         return
     kb = await get_main_category_buttons()
-    await callback_query.message.edit_text(
-        "Select a main category:", reply_markup=kb
-    )
+    await callback_query.message.edit_text("Select a main category:", reply_markup=kb)
     await state.set_state(UploadStates.waiting_for_main_category)
 
 
 @router.callback_query(lambda c: c.data.startswith("main_"))
-async def main_category_handler(
-    callback_query: types.CallbackQuery, state: FSMContext
-):
+async def main_category_handler(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
         return
@@ -121,16 +120,12 @@ async def main_category_handler(
     await state.update_data(main_category_id=category_id)
 
     kb = await get_subcategory_buttons(category_id)
-    await callback_query.message.edit_text(
-        "Select a subcategory:", reply_markup=kb
-    )
+    await callback_query.message.edit_text("Select a subcategory:", reply_markup=kb)
     await state.set_state(UploadStates.waiting_for_subcategory)
 
 
 @router.callback_query(lambda c: c.data.startswith("sub_"))
-async def subcategory_handler(
-    callback_query: types.CallbackQuery, state: FSMContext
-):
+async def subcategory_handler(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
         return
@@ -138,9 +133,7 @@ async def subcategory_handler(
     subcategory_id = int(callback_query.data.split("_")[1])
     await state.update_data(subcategory_id=subcategory_id)
 
-    await callback_query.message.edit_text(
-        "Now send me the cards info in the required format."
-    )
+    await callback_query.message.edit_text("Now send me the cards info in the required format.")
     await state.set_state(UploadStates.waiting_for_cards_text)
 
 
