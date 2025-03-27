@@ -1,12 +1,12 @@
 from collections import defaultdict
 from typing import List
 
-
+from fastapi import Request
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from cache import CacheRoute
-from models import Card, MainCategory, SubCategory
+from models import Card, MainCategory, SubCategory, VisitLog
 from schemas import (
     BankCardsSchema,
     CardSchema,
@@ -79,3 +79,11 @@ async def get_main_category_details(main_category_id: int):
     }
     response = jsonable_encoder(data)
     return JSONResponse(content=response)
+
+
+@api_router.post("/track_visit")
+async def track_visit(request: Request):
+    ip = request.client.host
+    path = "/"
+    await VisitLog.create(ip=ip, path=path)
+    return {"status": "ok"}

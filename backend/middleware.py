@@ -1,6 +1,10 @@
 import logging
 
 from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+from models import VisitLog
 
 logger = logging.getLogger("custom.access")
 
@@ -19,9 +23,7 @@ async def log_ip_middleware(request: Request, call_next):
     if not path.startswith(EXCLUDED_PATHS):
         client_ip = request.client.host
         response = await call_next(request)
-        logger.info(
-            f"{request.method} {path} - IP: {client_ip} - Status: {response.status_code}"
-        )
+        logger.info(f"{request.method} {path} - IP: {client_ip} - Status: {response.status_code}")
     else:
         response = await call_next(request)
 

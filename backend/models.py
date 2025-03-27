@@ -18,9 +18,7 @@ class MainCategory(models.Model):
 class SubCategory(models.Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=255)
-    main_category = fields.ForeignKeyField(
-        "models.MainCategory", related_name="subcategories"
-    )
+    main_category = fields.ForeignKeyField("models.MainCategory", related_name="subcategories")
 
     def __str__(self):
         return self.name
@@ -30,9 +28,7 @@ class Card(models.Model):
     id = fields.IntField(pk=True)
     bank_name = fields.CharField(max_length=255)
     card_name = fields.TextField()
-    subcategory = fields.ForeignKeyField(
-        "models.SubCategory", related_name="cards"
-    )
+    subcategory = fields.ForeignKeyField("models.SubCategory", related_name="cards")
 
     def __str__(self):
         return self.card_name
@@ -48,6 +44,13 @@ class BotUser(models.Model):
     username = fields.CharField(max_length=255, null=True)
     name = fields.CharField(max_length=255, null=True)
     created_at = fields.DatetimeField(auto_now_add=True)
+
+
+class VisitLog(models.Model):
+    id = fields.IntField(pk=True)
+    ip = fields.CharField(max_length=45)
+    path = fields.CharField(max_length=255)
+    timestamp = fields.DatetimeField(auto_now_add=True)
 
 
 TORTOISE_ORM = {

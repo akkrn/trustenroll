@@ -1,7 +1,7 @@
 from fastapi_admin.providers.login import UsernamePasswordProvider
 from fastapi_admin.resources import Model
 from fastapi_admin.widgets import filters
-from models import Admin, BotUser, Card, MainCategory, SubCategory
+from models import Admin, BotUser, Card, MainCategory, SubCategory, VisitLog
 
 
 async def configure_admin(admin_app, redis, template_path):
@@ -72,3 +72,10 @@ async def register_admin(admin_app):
         model = Admin
         icon = "fa fa-folder"
         fields = ["id", "username", "password"]
+
+    @admin_app.register
+    class VisitLogAdmin(Model):
+        label = "Visit Logs"
+        model = VisitLog
+        fields = ["id", "ip", "path", "timestamp"]
+        filters = []

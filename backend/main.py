@@ -7,9 +7,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from tortoise.contrib.fastapi import register_tortoise
+
 from logging_config import setup_logging
 from middleware import log_ip_middleware
-from tortoise.contrib.fastapi import register_tortoise
 
 from api_routes import api_router
 
