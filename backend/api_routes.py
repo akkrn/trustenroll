@@ -88,7 +88,6 @@ async def track_visit(request: Request):
     ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.client.host
     ua_string = request.headers.get("User-Agent", "")
     user_agent = parse(ua_string)
-
     await VisitLog.create(
         ip=ip,
         device=user_agent.device.family,
