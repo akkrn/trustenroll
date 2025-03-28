@@ -1,6 +1,9 @@
 from fastapi_admin.providers.login import UsernamePasswordProvider
 from fastapi_admin.resources import Model
 from fastapi_admin.widgets import filters
+from starlette.requests import Request
+from tortoise.queryset import QuerySet
+
 from models import Admin, BotUser, Card, MainCategory, SubCategory, VisitLog
 
 
@@ -79,3 +82,8 @@ async def register_admin(admin_app):
         model = VisitLog
         fields = ["id", "ip", "device", "os", "browser", "timestamp"]
         filters = []
+
+        @classmethod
+        async def resolve_query_params(cls, request: Request, values: dict, qs: QuerySet):
+            ret, qs = await super().resolve_query_params(request, values, qs)
+            return ret, qs.order_by("-timestamp")
