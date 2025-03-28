@@ -77,5 +77,5 @@ async def register_admin(admin_app):
     class VisitLogAdmin(Model):
         label = "Visit Logs"
         model = VisitLog
-        fields = ["id", "ip", "path", "timestamp"]
+        fields = ["id", "ip", "device", "os", "browser", "timestamp"]
         filters = []

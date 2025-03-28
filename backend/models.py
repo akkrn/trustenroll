@@ -49,8 +49,10 @@ class BotUser(models.Model):
 class VisitLog(models.Model):
     id = fields.IntField(pk=True)
     ip = fields.CharField(max_length=45)
-    path = fields.CharField(max_length=255)
     timestamp = fields.DatetimeField(auto_now_add=True)
+    device = fields.CharField(max_length=128, null=True)
+    os = fields.CharField(max_length=128, null=True)
+    browser = fields.CharField(max_length=128, null=True)
 
 
 TORTOISE_ORM = {

@@ -14,6 +14,7 @@ from schemas import (
     MainCategorySchema,
 )
 from service import extract_available
+from user_agents import parse
 
 api_router = APIRouter(route_class=CacheRoute)
 
@@ -83,7 +84,15 @@ async def get_main_category_details(main_category_id: int):
 
 @api_router.post("/ping")
 async def track_visit(request: Request):
-    ip = request.client.host
-    path = "/"
-    await VisitLog.create(ip=ip, path=path)
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.client.host
+    ua_string = request.headers.get("User-Agent", "")
+    user_agent = parse(ua_string)
+
+    await VisitLog.create(
+        ip=ip,
+        device=user_agent.device.family,
+        os=user_agent.os.family,
+        browser=user_agent.browser.family,
+    )
     return {"status": "ok"}

@@ -185,3 +185,9 @@ websockets==15.0.1
     # via
     #   trustenroll (pyproject.toml:backend)
     #   uvicorn
+ua-parser==1.0.1
+    # via user-agents
+ua-parser-builtins==0.18.0.post1
+    # via ua-parser
+user-agents==2.2.0
+    # via trustenroll (pyproject.toml:backend)
