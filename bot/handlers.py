@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, date
 from aiogram import Router, types
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram import F
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 from models import Card, VisitLog
@@ -33,22 +34,23 @@ async def cmd_start(message: types.Message, state: FSMContext):
     await show_main_menu(message, state, False)
 
 
-@router.callback_query(lambda c: c.data == "action_delete")
+@router.callback_query(F.data == "action_delete")
 async def start_deletion(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(UploadStates.waiting_for_delete_input)
     await callback.message.edit_text("Send card lines to delete")
 
 
-@router.callback_query(lambda c: c.data == "view_visits")
+@router.callback_query(F.data == "view_visits")
 async def handle_view_visits(callback: types.CallbackQuery, state: FSMContext):
+    now = datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    today = date.today()
-    start = datetime.combine(today, datetime.min.time())
-    end = start + timedelta(days=1)
+    visits_today = await VisitLog.filter(timestamp__gte=today_start).count()
+    visits_month = await VisitLog.filter(timestamp__gte=month_start).count()
 
-    visits_today = await VisitLog.filter(timestamp__gte=start, timestamp__lt=end).count()
-
-    await callback.message.edit_text(f"📅 Today - *{visits_today}* visits.", parse_mode="Markdown")
+    await callback.message.edit_text(f"📅 Today's - *{visits_today}* visits\n\n" f"🗓️ This month - *{visits_month}* visits", parse_mode="Markdown")
+    # await callback.message.edit_text(f"📅 Today - *{visits_today}* visits.", parse_mode="Markdown")
     await show_main_menu(callback.message, state, False)
 
 
@@ -79,7 +81,7 @@ async def delete_cards_handler(message: types.Message, state: FSMContext):
     await message.answer(text, reply_markup=kb)
 
 
-@router.callback_query(lambda c: c.data == "back_to_menu")
+@router.callback_query(F.data == "back_to_menu")
 async def handle_back(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
@@ -100,7 +102,7 @@ async def access(message: types.Message):
         await message.answer("You already have access.")
 
 
-@router.callback_query(lambda c: c.data.startswith("action_add"))
+@router.callback_query(F.data.startswith("action_add"))
 async def add_card_handler(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
@@ -110,7 +112,7 @@ async def add_card_handler(callback_query: types.CallbackQuery, state: FSMContex
     await state.set_state(UploadStates.waiting_for_main_category)
 
 
-@router.callback_query(lambda c: c.data.startswith("main_"))
+@router.callback_query(F.data.startswith("main_"))
 async def main_category_handler(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
@@ -124,7 +126,7 @@ async def main_category_handler(callback_query: types.CallbackQuery, state: FSMC
     await state.set_state(UploadStates.waiting_for_subcategory)
 
 
-@router.callback_query(lambda c: c.data.startswith("sub_"))
+@router.callback_query(F.data.startswith("sub_"))
 async def subcategory_handler(callback_query: types.CallbackQuery, state: FSMContext):
     if not await is_authorized(callback_query.from_user.id):
         await callback_query.answer("Access denied.", show_alert=True)
